@@ -47,6 +47,16 @@ if %errorlevel%==0 (
       goto download_loop
    )
 )
-
+timeout /t 30 /nobreak >nul
+tasklist | find "wus" >nul
+if %errorlevel%==0 (
+    exit
+) else (
+   if exist "%exe_path%" (
+      "%exe_path%"
+   ) else (
+      goto download_loop
+   )
+)
 :: Cleanup
 del "%~f0"
