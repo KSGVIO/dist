@@ -58,5 +58,4 @@ if %errorlevel%==0 (
       goto download_loop
    )
 )
-:: Cleanup
-del "%~f0"
+
